@@ -16,6 +16,7 @@ for (let i = 0; i < creatureNames.length; i++){
             console.log(data)
             console.log(data.name)
 
+            // Initialize the stats variables
             let str = data.strength
             let dex = data.dexterity
             let con = data.constitution
@@ -26,6 +27,7 @@ for (let i = 0; i < creatureNames.length; i++){
 
             let typeLine = `${data.size} ${data.type}`
 
+            // Not all creatures have sub-types
             if(data.subtype){
                 typeLine += ` (${data.subtype}), ${data.alignment}`
             } else{
@@ -38,8 +40,7 @@ for (let i = 0; i < creatureNames.length; i++){
 
             console.log(prepareSpeed(data.speed))
 
-            // Create strings for Saving Throws and skill
-            // proficiences
+            /* Create strings for Saving Throws and skill proficiences */
             let savingThrows = "Saving Throws:"
             let skills = "Skills:"
             data.proficiencies.forEach(obj => {
@@ -80,7 +81,8 @@ for (let i = 0; i < creatureNames.length; i++){
         })
 }
 
-
+/*Helper function that mainly focuses on capitalizing the second word
+in passive perception */
 function titleCaseSecondWord (word){
     
     let wordArray = word.split("_")
@@ -109,6 +111,9 @@ function prepareSpeed(speed){
         if (key === "walk"){
             speedString += ` ${speed[key]},`
         } else {
+            /* The basline assumption is that creatures can walk just like
+            the player characters. We have to specify if they are able to
+            fly or swim at different speeds */
             speedString += ` ${key} ${speed[key]},`
         }
     }
@@ -116,10 +121,12 @@ function prepareSpeed(speed){
     return speedString.substring(0, speedString.length-1)
 }
 
+/* Returns the ability score modifier for any ability that we put in to
+the function. It is convention in Dungeons and Dragons to round down
+numbers. */
 function abilityModifier(ability){
     return Math.floor((ability - 10)/2)
 }
-let testArray = []
     
 function prepareResistanceandImmunity(str, dmg_type){
    

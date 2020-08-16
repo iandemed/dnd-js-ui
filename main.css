@@ -1,3 +1,33 @@
-.div {
+div {
     margin: auto;
+}
+
+nav{
+    background: #7e2d40;
+    color: white;
+    padding: 10px;
+}
+
+nav h1{
+    margin: 0px;
+}
+
+.stat-block{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    justify-items: center;
+    align-items: center;
+
+    margin: auto;
+    background: #F7e7bd;
+}
+
+.stat-block h2{
+    display: inline-block;
+    margin: 0px;
+}
+
+.maroon{
+    color: #7e2d40;
 }
