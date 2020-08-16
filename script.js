@@ -7,7 +7,7 @@ const url = "https://www.dnd5eapi.co/api/monsters"
 console.log("This is the api url: " + url)
 
 
-let creatureNames = ['bandit', 'aboleth', 'tarrasque']
+let creatureNames = ['bandit', 'skeleton', 'aboleth', 'tarrasque']
 
 for (let i = 0; i < creatureNames.length; i++){
     fetch(`${url}/${creatureNames[i]}`)
@@ -73,9 +73,9 @@ for (let i = 0; i < creatureNames.length; i++){
             console.log(`Languages: ${data.languages}`)
 
             if (data.special_abilities){
-                data.special_abilities.forEach(obj => {
-                    console.log(`${obj.name}. ${obj.desc}`)
-                })
+                for (let i=0; i < data.special_abilities.length; i++){
+                    console.log(prepareAbilities(data.special_abilities[i]))
+                }
             }
         })
 }
@@ -128,17 +128,44 @@ function prepareResistanceandImmunity(str, dmg_type){
     for(let i = 0; i < dmg_type.length; i++){
         
         if(str.includes("Condition Immunities")){
-            str += ` ${dmg_type[i].name},`
+            str += `, ${dmg_type[i].name}`
         }else{
-            str += ` ${dmg_type[i]},`
+            /* We want to make sure to correctly format the immunities and
+            resistances for clarity. For example, there are a bevy of
+            monsters that are resistant or immune convential weapon damage 
+            (piercing, slashing, and bludgeoning) that is not cause by a 
+            magical and/or silvered weapon. We want to make sure it is
+            clear to the reader that it applies to ALL of those types of
+            damage and not just the one that comes last
+            */
+            if(dmg_type[i].includes(',')){
+                str += `; ${dmg_type[i]}`
+            } else {
+                str += `, ${dmg_type[i]}`
+            }
         }
         
     }
     
-    // return nothing if the monster does not have any resistances,
-    // vulnerabilites, or immunities
+    /* return nothing if the monster does not have any resistances,
+     vulnerabilites, or immunities */
     if (str.length > strtLength){
-        return str.substring(0, str.length-1)
+        return str.substring(0, str.length)
     }
 
+}
+
+function prepareAbilities(obj){
+    
+    let usage = obj.usage
+    let str = ""
+
+
+    if (usage){
+        str = `${obj.name} (${usage.times} ${usage.type}). ${obj.desc}`
+    } else{
+        str = `${obj.name}. ${obj.desc}` 
+    }
+
+    return str
 }
