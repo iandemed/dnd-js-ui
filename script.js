@@ -7,7 +7,7 @@ const url = "https://www.dnd5eapi.co/api/monsters"
 console.log("This is the api url: " + url)
 
 
-let creatureNames = ['bandit', 'aboleth']
+let creatureNames = ['bandit', 'aboleth', 'tarrasque']
 
 for (let i = 0; i < creatureNames.length; i++){
     fetch(`${url}/${creatureNames[i]}`)
@@ -15,37 +15,60 @@ for (let i = 0; i < creatureNames.length; i++){
         .then(data => {
             console.log(data)
             console.log(data.name)
-            console.log(`${data.size} ${data.type} (${data.subtype}), ${data.alignment}`)
+
+            let str = data.strength
+            let dex = data.dexterity
+            let con = data.constitution
+            let int = data.intelligence
+            let wis = data.wisdom
+            let cha = data.charisma
+
+
+            let typeLine = `${data.size} ${data.type}`
+
+            if(data.subtype){
+                typeLine += ` (${data.subtype}), ${data.alignment}`
+            } else{
+                typeLine += `, ${data.alignment}`
+            }
+
+            console.log(typeLine)
             console.log(`Armor Class: ${data.armor_class}`)
-            console.log(`Hit Points: ${data.hit_points} (${data.hit_dice})`)
-            
-            for (let key in data.speed){
-                console.log(`Speed: ${data.speed[key]} (${key})`)
+            console.log(`Hit Points: ${data.hit_points} (${data.hit_dice}+${abilityModifier(con)})`)
+
+            console.log(prepareSpeed(data.speed))
+
+            // Create strings for Saving Throws and skill
+            // proficiences
+            let savingThrows = "Saving Throws:"
+            let skills = "Skills:"
+            data.proficiencies.forEach(obj => {
+                strLength = obj.name.length
+
+                if(obj.name.includes("Saving Throw:")){
+                    savingThrows += `${obj.name.substr(13,strLength)}+${obj.value},` 
+                }
+
+                if(obj.name.includes("Skill:")){
+                    skills += `${obj.name.substr(6,strLength)}+${obj.value},`
+                }
+            });
+
+
+            let stLength = savingThrows.length
+            let skLength = skills.length
+            if (stLength > 16){
+                console.log(savingThrows.substr(0, stLength - 1))
+            }
+            if (skLength > 8){
+                console.log(skills.substr(0,skLength - 1))
             }
 
-            data.proficiencies.forEach(obj => {
-                console.log(`${obj.name} ${obj.value}`) 
-            });
-
-            data.proficiencies.forEach(obj => {
-                console.log(`${obj.name} +${obj.value}`) 
-            });
-            data.damage_vulnerabilities.forEach(obj => {
-                console.log(`${obj.name} +${obj.value}`) 
-            });
-            data.damage_resistances.forEach(obj => {
-                console.log(`${obj.name} +${obj.value}`) 
-            });
-            data.damage_immunities.forEach(obj => {
-                console.log(`${obj.name} +${obj.value}`) 
-            });
-            data.condition_immunities.forEach(obj => {
-                console.log(`${obj.name} +${obj.value}`) 
-            });
-
-            for (let key in data.senses){
-                console.log(`${data.senses[key]}`)
-            }
+            console.log(prepareResistanceandImmunity("Damage Vulnerabilities", data.damage_vulnerabilities))
+            console.log(prepareResistanceandImmunity("Damage Resistances", data.damage_resistances))
+            console.log(prepareResistanceandImmunity("Damage Immunities", data.damage_immunities))
+            console.log(prepareResistanceandImmunity("Condition Immunities", data.condition_immunities))
+            console.log(prepareSenses(data.senses))
 
             console.log(`Languages: ${data.languages}`)
 
@@ -55,4 +78,67 @@ for (let i = 0; i < creatureNames.length; i++){
                 })
             }
         })
+}
+
+
+function titleCaseSecondWord (word){
+    
+    let wordArray = word.split("_")
+
+    if (wordArray.length > 1){
+        let str = wordArray[1]
+        wordArray[1] = str.charAt(0).toUpperCase() + str.slice(1)
+    }
+    return wordArray.join(" ")
+}
+
+function prepareSenses(senses){
+    let sensesStr = "Senses: "
+
+    for (let key in senses){
+        sensesStr += ` ${titleCaseSecondWord(key)} ${senses[key]},`
+    }
+
+    return sensesStr.substring(0, sensesStr.length-1)
+}
+
+function prepareSpeed(speed){
+   let speedString = "Speed:"
+
+    for (let key in speed){
+        if (key === "walk"){
+            speedString += ` ${speed[key]},`
+        } else {
+            speedString += ` ${key} ${speed[key]},`
+        }
+    }
+   
+    return speedString.substring(0, speedString.length-1)
+}
+
+function abilityModifier(ability){
+    return Math.floor((ability - 10)/2)
+}
+let testArray = []
+    
+function prepareResistanceandImmunity(str, dmg_type){
+   
+    let strtLength = str.length
+    
+    for(let i = 0; i < dmg_type.length; i++){
+        
+        if(str.includes("Condition Immunities")){
+            str += ` ${dmg_type[i].name},`
+        }else{
+            str += ` ${dmg_type[i]},`
+        }
+        
+    }
+    
+    // return nothing if the monster does not have any resistances,
+    // vulnerabilites, or immunities
+    if (str.length > strtLength){
+        return str.substring(0, str.length-1)
+    }
+
 }
