@@ -81,6 +81,20 @@ for (let i = 0; i < creatureNames.length; i++){
         })
 }
 
+
+
+let acc = document.querySelector(".accordion")
+
+acc.addEventListener("click", (e) => {
+    let statBlock = e.target.nextElementSibling
+
+    if (statBlock.style.maxHeight){
+        statBlock.style.maxHeight = null
+    } else{
+        statBlock.style.maxHeight = `${statBlock.scrollHeight}px`
+    }
+})
+
 /*Helper function that mainly focuses on capitalizing the second word
 in passive perception */
 function titleCaseSecondWord (word){
