@@ -7,92 +7,133 @@ const url = "https://www.dnd5eapi.co/api/monsters"
 console.log("This is the api url: " + url)
 
 
-let creatureNames = ['bandit', 'skeleton', 'aboleth', 'tarrasque']
+// let creatureNames = ['bandit', 'skeleton', 'aboleth', 'tarrasque']
 
-for (let i = 0; i < creatureNames.length; i++){
-    fetch(`${url}/${creatureNames[i]}`)
+// for (let i = 0; i < creatureNames.length; i++){
+//     fetch(`${url}/${creatureNames[i]}`)
+//         .then(res => res.json())
+//         .then(data => {
+//             console.log(data)
+//             console.log(data.name)
+
+//             // Initialize the stats variables
+//             let str = data.strength
+//             let dex = data.dexterity
+//             let con = data.constitution
+//             let int = data.intelligence
+//             let wis = data.wisdom
+//             let cha = data.charisma
+
+
+//             let typeLine = `${data.size} ${data.type}`
+
+//             // Not all creatures have sub-types
+//             if(data.subtype){
+//                 typeLine += ` (${data.subtype}), ${data.alignment}`
+//             } else{
+//                 typeLine += `, ${data.alignment}`
+//             }
+
+//             console.log(typeLine)
+//             console.log(`Armor Class: ${data.armor_class}`)
+//             console.log(`Hit Points: ${data.hit_points} (${data.hit_dice}+${abilityModifier(con)})`)
+
+//             console.log(prepareSpeed(data.speed))
+
+//             /* Create strings for Saving Throws and skill proficiences */
+//             let savingThrows = "Saving Throws:"
+//             let skills = "Skills:"
+//             data.proficiencies.forEach(obj => {
+//                 strLength = obj.name.length
+
+//                 if(obj.name.includes("Saving Throw:")){
+//                     savingThrows += `${obj.name.substr(13,strLength)}+${obj.value},` 
+//                 }
+
+//                 if(obj.name.includes("Skill:")){
+//                     skills += `${obj.name.substr(6,strLength)}+${obj.value},`
+//                 }
+//             });
+
+
+//             let stLength = savingThrows.length
+//             let skLength = skills.length
+//             if (stLength > 16){
+//                 console.log(savingThrows.substr(0, stLength - 1))
+//             }
+//             if (skLength > 8){
+//                 console.log(skills.substr(0,skLength - 1))
+//             }
+
+//             console.log(prepareResistanceandImmunity("Damage Vulnerabilities", data.damage_vulnerabilities))
+//             console.log(prepareResistanceandImmunity("Damage Resistances", data.damage_resistances))
+//             console.log(prepareResistanceandImmunity("Damage Immunities", data.damage_immunities))
+//             console.log(prepareResistanceandImmunity("Condition Immunities", data.condition_immunities))
+//             console.log(prepareSenses(data.senses))
+
+//             console.log(`Languages: ${data.languages}`)
+
+//             if (data.special_abilities){
+//                 for (let i=0; i < data.special_abilities.length; i++){
+//                     console.log(prepareAbilities(data.special_abilities[i]))
+//                 }
+//             }
+//         })
+// }
+
+
+let creatures = ['bandit', 'skeleton']
+let container = document.querySelector(".container")
+
+for (let i = 0; i < creatures.length; i++){
+    fetch(`${url}/${creatures[i]}`)
         .then(res => res.json())
         .then(data => {
-            console.log(data)
-            console.log(data.name)
 
-            // Initialize the stats variables
-            let str = data.strength
-            let dex = data.dexterity
-            let con = data.constitution
-            let int = data.intelligence
-            let wis = data.wisdom
-            let cha = data.charisma
+            // Create an accordion button for all of the creatures in the array that
+            // was passed into the loop
+            let btn = document.createElement("button")
+            btn.innerHTML = `<p>${data.name}</p> <p>CR ${data.challenge_rating}</p>`
+            btn.classList.add("accordion")
+            
+            container.appendChild(btn)
 
+            let statBlock = document.createElement("div")
+            statBlock.classList.add("monster-sheet")
+            statBlock.innerHTML =`<h1> I'm just testing this out right now </h1> <p>  Ability check charm concealment earth subtype fighter fire domain paralyzed range penalty rebuke undead rounding spell slot subject telepathy turning check vulnerability to energy. Ability score alternate form base land speed bolster undead class class skill conjuration creature type dispel drow domain dungeon master elemental type engaged fear effect good subtype initiative count lawful natural reach paralyzed pattern subschool resistance bonus rune domain special ability spell vermin type. </p>`
 
-            let typeLine = `${data.size} ${data.type}`
+            container.appendChild(statBlock)
 
-            // Not all creatures have sub-types
-            if(data.subtype){
-                typeLine += ` (${data.subtype}), ${data.alignment}`
-            } else{
-                typeLine += `, ${data.alignment}`
-            }
-
-            console.log(typeLine)
-            console.log(`Armor Class: ${data.armor_class}`)
-            console.log(`Hit Points: ${data.hit_points} (${data.hit_dice}+${abilityModifier(con)})`)
-
-            console.log(prepareSpeed(data.speed))
-
-            /* Create strings for Saving Throws and skill proficiences */
-            let savingThrows = "Saving Throws:"
-            let skills = "Skills:"
-            data.proficiencies.forEach(obj => {
-                strLength = obj.name.length
-
-                if(obj.name.includes("Saving Throw:")){
-                    savingThrows += `${obj.name.substr(13,strLength)}+${obj.value},` 
+            btn.addEventListener("click", (e) => {
+                let statBlock = e.target.nextElementSibling
+                console.log(statBlock)
+        
+                if (statBlock.style.maxHeight){
+                    statBlock.style.maxHeight = null
+                } else{
+                    statBlock.style.maxHeight = `${statBlock.scrollHeight}px`
                 }
-
-                if(obj.name.includes("Skill:")){
-                    skills += `${obj.name.substr(6,strLength)}+${obj.value},`
-                }
-            });
-
-
-            let stLength = savingThrows.length
-            let skLength = skills.length
-            if (stLength > 16){
-                console.log(savingThrows.substr(0, stLength - 1))
-            }
-            if (skLength > 8){
-                console.log(skills.substr(0,skLength - 1))
-            }
-
-            console.log(prepareResistanceandImmunity("Damage Vulnerabilities", data.damage_vulnerabilities))
-            console.log(prepareResistanceandImmunity("Damage Resistances", data.damage_resistances))
-            console.log(prepareResistanceandImmunity("Damage Immunities", data.damage_immunities))
-            console.log(prepareResistanceandImmunity("Condition Immunities", data.condition_immunities))
-            console.log(prepareSenses(data.senses))
-
-            console.log(`Languages: ${data.languages}`)
-
-            if (data.special_abilities){
-                for (let i=0; i < data.special_abilities.length; i++){
-                    console.log(prepareAbilities(data.special_abilities[i]))
-                }
-            }
+            })
         })
 }
 
 
+let acc = document.querySelectorAll(".accordion")
 
-let acc = document.querySelector(".accordion")
 
-acc.addEventListener("click", (e) => {
-    let statBlock = e.target.nextElementSibling
+acc.forEach( (obj) => {
 
-    if (statBlock.style.maxHeight){
-        statBlock.style.maxHeight = null
-    } else{
-        statBlock.style.maxHeight = `${statBlock.scrollHeight}px`
-    }
+    obj.addEventListener("click", (e) => {
+        let statBlock = e.target.nextElementSibling
+        console.log(statBlock)
+
+        if (statBlock.style.maxHeight){
+            statBlock.style.maxHeight = null
+        } else{
+            statBlock.style.maxHeight = `${statBlock.scrollHeight}px`
+        }
+    })
+
 })
 
 /*Helper function that mainly focuses on capitalizing the second word

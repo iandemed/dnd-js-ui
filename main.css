@@ -17,19 +17,22 @@ nav h1{
     display: inline-block;
 }
 
-.stat-block{
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
-    justify-items: center;
-    align-items: center;
 
+.monster-sheet{
     margin: 0px;
     background: white;
 
     overflow: hidden;
     max-height: 0px;
     transition: max-height 0.2s ease-out;
+}
+
+.stat-block{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    justify-items: center;
+    align-items: center;
 }
 
 .stat-block h2{
