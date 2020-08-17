@@ -53,18 +53,16 @@ for (let i = 0; i < creatures.length; i++){
 
             let monsterSheet = document.createElement("div")
             monsterSheet.classList.add("monster-sheet")
-            monsterSheet.innerHTML = " Animal domain battle grid charm class constrict copper piece critical roll death domain earth domain elf domain energy drained favored class helpless lawful lethal damage miniature figure modifier paralysis poison shadow subschool spell domain stable starvation time domain travel domain."
 
             statBlock = createStatBlock(data)
             vitalsBlock = createVitalsBlock(data)
-
+            secondaryStatsBlock = createSecondaryStatsBlock(data)
 
 
             // Add all of the created divs to the monster's character sheet
             monsterSheet.appendChild(vitalsBlock)
             monsterSheet.appendChild(statBlock)
-            
-            console.log(prepareProficiencies(data.proficiencies))
+            monsterSheet.appendChild(secondaryStatsBlock)
 
             if (data.special_abilities){
                 abilitiesBlock = createAbilitiesBlock(data.special_abilities)
@@ -73,6 +71,7 @@ for (let i = 0; i < creatures.length; i++){
 
             container.appendChild(monsterSheet)
 
+            // Add event listeners to trigger the animations for the accoridans
             btn.addEventListener("click", (e) => {
                 let monsterSheet = e.target.nextElementSibling
                 console.log(monsterSheet)
@@ -86,6 +85,12 @@ for (let i = 0; i < creatures.length; i++){
         })
 }
 
+
+/* -------------------------------------------------- 
+   Helper functions
+-------------------------------------------------- */
+
+
 /*Helper function that mainly focuses on capitalizing the second word
 in passive perception */
 function titleCaseSecondWord (word){
@@ -98,16 +103,22 @@ function titleCaseSecondWord (word){
     }
     return wordArray.join(" ")
 }
-
-function prepareSenses(senses){
-    let sensesStr = "Senses: "
-
-    for (let key in senses){
-        sensesStr += ` ${titleCaseSecondWord(key)} ${senses[key]},`
-    }
-
-    return sensesStr.substring(0, sensesStr.length-1)
+/* Returns the ability score modifier for any ability that we put in to
+the function. It is convention in Dungeons and Dragons to round down
+numbers. */
+function abilityModifier(ability){
+    return Math.floor((ability - 10)/2)
 }
+    
+
+function pTagWrap(str){
+    return `<p>${str}</p>`
+}
+
+/* -------------------------------------------------- 
+   Functions to process data from the JSON and 
+   format it for the website
+-------------------------------------------------- */
 
 function prepareSpeed(speed){
    let speedString = "<strong> Speed </strong>"
@@ -127,13 +138,59 @@ function prepareSpeed(speed){
     return pTagWrap(speedString)
 }
 
-/* Returns the ability score modifier for any ability that we put in to
-the function. It is convention in Dungeons and Dragons to round down
-numbers. */
-function abilityModifier(ability){
-    return Math.floor((ability - 10)/2)
+function prepareStatRow(array, h2 = false){
+    for(i = 0; i < array.length; i++){
+        
+        if (h2){
+            array[i] = `<h2>${array[i]}</h2>`
+        }   else{
+            array[i] = pTagWrap(array[i])
+        }
+    }
+
+    return array.join(" ")
 }
+
+/* Create strings for Saving Throws and skill proficiences. Characters and monsters in
+Dungeons and Dragons gain a bonus to any roll that they are proficient in to represent
+their increased skill compared to a layman. proficiencies are saved as an array of objects
+with the objects names being strings we need to parse for more information*/
+function prepareProficiencies(proficiencies){
+    let savingThrows = "<strong> Saving Throws </strong>"
+    let skills = "<strong> Skills </strong>"
+
+    let str = ""
+
+    proficiencies.forEach(obj => {
+        strLength = obj.name.length
+
+        if(obj.name.includes("Saving Throw:")){
+            savingThrows +=`${obj.name.substr(13,strLength)}+${obj.value},` 
+        }
+
+        if(obj.name.includes("Skill:")){
+            skills += `${obj.name.substr(6,strLength)}+${obj.value},`
+        }
+    });
     
+    /* Monsters do not always have both skill and saving throw proficiencies,
+     as a result we need to determine if a specific monster has them and
+     include them as appropriate.
+     
+     Currently I use a naive approach of measuring the length of the strings
+     I intialized at the start of the function */
+    let stLength = savingThrows.length
+    let skLength = skills.length
+    if (stLength > 33){
+        str += pTagWrap(savingThrows.substr(0, stLength - 1))
+    }
+    if (skLength > 26){
+        str += pTagWrap(skills.substr(0,skLength - 1))
+    }
+
+    return str
+}
+
 function prepareResistanceandImmunity(str, dmg_type){
    
     let strtLength = str.length
@@ -141,8 +198,14 @@ function prepareResistanceandImmunity(str, dmg_type){
     for(let i = 0; i < dmg_type.length; i++){
         
         if(str.includes("Condition Immunities")){
-            str += `, ${dmg_type[i].name}`
-        }else{
+            
+            if (i === 0) {
+                str += `${dmg_type[i].name}`
+            } else {
+                str += `, ${dmg_type[i].name}`
+            }
+            
+        } else{
             /* We want to make sure to correctly format the immunities and
             resistances for clarity. For example, there are a bevy of
             monsters that are resistant or immune convential weapon damage 
@@ -151,7 +214,9 @@ function prepareResistanceandImmunity(str, dmg_type){
             clear to the reader that it applies to ALL of those types of
             damage and not just the one that comes last
             */
-            if(dmg_type[i].includes(',')){
+            if (i === 0) {
+                str += `${dmg_type[i]}`
+            }else if(dmg_type[i].includes(',')){
                 str += `; ${dmg_type[i]}`
             } else {
                 str += `, ${dmg_type[i]}`
@@ -163,10 +228,23 @@ function prepareResistanceandImmunity(str, dmg_type){
     /* return nothing if the monster does not have any resistances,
      vulnerabilites, or immunities */
     if (str.length > strtLength){
-        return str.substring(0, str.length)
+        return pTagWrap(str)
+    } else{
+        return ""
     }
 
 }
+
+function prepareSenses(senses){
+    let sensesStr = "<strong> Senses </strong>"
+
+    for (let key in senses){
+        sensesStr += ` ${titleCaseSecondWord(key)} ${senses[key]},`
+    }
+
+    return sensesStr.substring(0, sensesStr.length-1)
+}
+
 
 function prepareAbilities(obj){
     
@@ -183,18 +261,10 @@ function prepareAbilities(obj){
     return str
 }
 
-function pTagWrap(str){
-    return `<p>${str}</p>`
-}
 
-function prepareStatRow(array){
-    for(i = 0; i < array.length; i++){
-        array[i] = pTagWrap(array[i])
-    }
-
-    return array.join(" ")
-}
-
+/* -------------------------------------------------- 
+   Functions to dynamically create HTML elements
+-------------------------------------------------- */
 
 function createStatBlock(data){
 
@@ -213,9 +283,7 @@ function createStatBlock(data){
     let statsBlock = document.createElement("div")
     statsBlock.classList.add("stat-block")
 
-    statsBlock.innerHTML =  prepareStatRow(statsStrArray) + prepareStatRow(statsArray) + prepareStatRow(statsModArray)
-    console.log(statsBlock.innerHTML)
-
+    statsBlock.innerHTML =  prepareStatRow(statsStrArray, true) + prepareStatRow(statsArray) + prepareStatRow(statsModArray)
 
     return statsBlock
 }
@@ -227,11 +295,28 @@ function createVitalsBlock(data){
 
 
     let ac = pTagWrap(`<strong> Armor Class </strong> ${data.armor_class}`)
-    let hp = pTagWrap(`<strong> Hit Points </strong> ${data.hit_points} (${data.hit_dice}+${abilityModifier(con)}`)
+    let hp = pTagWrap(`<strong> Hit Points </strong> ${data.hit_points} (${data.hit_dice}+${abilityModifier(con)})`)
     
     vitalsBlock.innerHTML = ac + hp + prepareSpeed(data.speed)
 
     return vitalsBlock
+}
+
+function createSecondaryStatsBlock(data){
+    
+    let secondaryStatsBlock = document.createElement("div")
+    
+    secondaryStatsBlock.innerHTML += prepareProficiencies(data.proficiencies)
+
+    secondaryStatsBlock.innerHTML += prepareResistanceandImmunity("<strong> Damage Vulnerabilities </strong>", data.damage_vulnerabilities)
+    secondaryStatsBlock.innerHTML += prepareResistanceandImmunity("<strong> Damage Resistances </strong>", data.damage_resistances)
+    secondaryStatsBlock.innerHTML += prepareResistanceandImmunity("<strong> Damage Immunities </strong>", data.damage_immunities)
+    secondaryStatsBlock.innerHTML += prepareResistanceandImmunity("<strong> Condition Immunities </strong>", data.condition_immunities)
+    secondaryStatsBlock.innerHTML += prepareSenses(data.senses)
+
+    secondaryStatsBlock.innerHTML += pTagWrap(`<strong> Languages </strong> ${data.languages}`)
+
+    return secondaryStatsBlock
 }
 
 function createAbilitiesBlock(special_abilities){
@@ -244,52 +329,3 @@ function createAbilitiesBlock(special_abilities){
 
     return abilitiesBlock
 }
-
-
-
-/* Create strings for Saving Throws and skill proficiences. Characters and monsters in
-Dungeons and Dragons gain a bonus to any roll that they are proficient in to represent
-their increased skill compared to a layman. proficiencies are saved as an array of objects
-with the objects names being strings we need to parse for more information*/
-function prepareProficiencies(proficiencies){
-            let savingThrows = "<strong> Saving Throws </strong>"
-            let skills = "<strong> Skills </strong>"
-
-            let str = ""
-
-            proficiencies.forEach(obj => {
-                strLength = obj.name.length
-
-                if(obj.name.includes("Saving Throw:")){
-                    savingThrows +=`${obj.name.substr(13,strLength)}+${obj.value},` 
-                }
-
-                if(obj.name.includes("Skill:")){
-                    skills += `${obj.name.substr(6,strLength)}+${obj.value},`
-                }
-            });
-            
-            /* Monsters do not always have both skill and saving throw proficiencies,
-             as a result we need to determine if a specific monster has them and
-             include them as appropriate.
-             
-             Currently I use a naive approach of measuring the length of the strings
-             I intialized at the start of the function */
-            let stLength = savingThrows.length
-            let skLength = skills.length
-            if (stLength > 33){
-                str += pTagWrap(savingThrows.substr(0, stLength - 1))
-            }
-            if (skLength > 26){
-                str += pTagWrap(skills.substr(0,skLength - 1))
-            }
-
-            return str
-}
-//             console.log(prepareResistanceandImmunity("Damage Vulnerabilities", data.damage_vulnerabilities))
-//             console.log(prepareResistanceandImmunity("Damage Resistances", data.damage_resistances))
-//             console.log(prepareResistanceandImmunity("Damage Immunities", data.damage_immunities))
-//             console.log(prepareResistanceandImmunity("Condition Immunities", data.condition_immunities))
-//             console.log(prepareSenses(data.senses))
-
-//             console.log(`Languages: ${data.languages}`)

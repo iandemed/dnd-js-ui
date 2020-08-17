@@ -12,11 +12,14 @@ nav{
     padding: 10px;
 }
 
+p{
+    margin: 0px;
+}
+
 nav h1{
     margin: 0px;
     display: inline-block;
 }
-
 
 .monster-sheet{
     margin: 0px;
@@ -27,6 +30,14 @@ nav h1{
     transition: max-height 0.2s ease-out;
 }
 
+.monster-sheet > div{
+    padding: 10px;
+}
+
+.monster-sheet *{
+    font-size: 1.25rem;
+}
+
 .stat-block{
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
@@ -35,7 +46,7 @@ nav h1{
     align-items: center;
 }
 
-.stat-block h2{
+.stat-block > *{
     display: inline-block;
     margin: 0px;
 }
