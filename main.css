@@ -1,16 +1,41 @@
 body{
     background: #2b2e4a;
+    margin: 0px;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+    overflow-y: scroll;
+}
+
+nav{
+    background: #E84545;
+    color: white;
+    padding: 10px;
+
+    box-sizing: border-box;
+    width: 100vw;
+
+    margin-bottom: 2.5%;
+}
+
+footer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100vw;
+
+    margin-top: 2.5%;
 }
 
 div {
     margin: auto;
 }
 
-nav{
-    background: #7e2d40;
-    color: white;
-    padding: 10px;
-}
 
 p{
     margin: 0px;
@@ -21,8 +46,36 @@ nav h1{
     display: inline-block;
 }
 
+.container{
+    margin: 2.5% 5%;
+}
+/* Styling for the accordian */
+
+a{
+    padding: 5px;
+}
+
+.accordion{
+    display: flex;
+
+    justify-content: space-between;
+    
+    transition: 0.4s;
+    width: 100%;
+}
+
+.accordion > * {
+    padding: 10px;
+    font-size: 1.5rem;
+    margin: 0px;
+}
+
+
+/* Styling for all of the elements specifically in the Stats Sheet */
+
 .monster-sheet{
     margin: 0px;
+    padding: 0px 10px;
     background: white;
 
     overflow: hidden;
@@ -32,6 +85,7 @@ nav h1{
 
 .monster-sheet > div{
     padding: 10px;
+    border-bottom-style: double;
 }
 
 .monster-sheet *{
@@ -52,20 +106,5 @@ nav h1{
 }
 
 .maroon{
-    color: #7e2d40;
-}
-
-.accordion{
-    display: flex;
-
-    justify-content: space-between;
-    
-    transition: 0.4s;
-    width: 100%;
-}
-
-.accordion > * {
-    padding: 10px;
-    font-size: 1.5rem;
-    margin: 0px;
+    color: #903749;
 }

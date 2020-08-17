@@ -4,86 +4,66 @@ Dungeons and Dragons 5th Edition SRD
 */
 const url = "https://www.dnd5eapi.co/api/monsters"
 
-console.log("This is the api url: " + url)
-
-
-// let creatureNames = ['bandit', 'skeleton', 'aboleth', 'tarrasque']
-
-// for (let i = 0; i < creatureNames.length; i++){
-//     fetch(`${url}/${creatureNames[i]}`)
-//         .then(res => res.json())
-//         .then(data => {
-//             console.log(data)
-//             console.log(data.name)
-
-
-//             let typeLine = `${data.size} ${data.type}`
-
-//             // Not all creatures have sub-types
-//             if(data.subtype){
-//                 typeLine += ` (${data.subtype}), ${data.alignment}`
-//             } else{
-//                 typeLine += `, ${data.alignment}`
-//             }
-
-//             console.log(typeLine)
-//            
-
-
-//         })
-// }
-
-
-let creatures = ['bandit', 'skeleton', 'aboleth']
 let container = document.querySelector(".container")
 
-for (let i = 0; i < creatures.length; i++){
-    fetch(`${url}/${creatures[i]}`)
-        .then(res => res.json())
-        .then(data => {
 
-            // Create an accordion button for all of the creatures in the array that
-            // was passed into the loop
-            let btn = document.createElement("button")
-            btn.innerHTML = `<p>${data.name}</p> <p>CR ${data.challenge_rating}</p>`
-            btn.classList.add("accordion")
-            
-            container.appendChild(btn)
-
-
-            let monsterSheet = document.createElement("div")
-            monsterSheet.classList.add("monster-sheet")
-
-            statBlock = createStatBlock(data)
-            vitalsBlock = createVitalsBlock(data)
-            secondaryStatsBlock = createSecondaryStatsBlock(data)
-
-
-            // Add all of the created divs to the monster's character sheet
-            monsterSheet.appendChild(vitalsBlock)
-            monsterSheet.appendChild(statBlock)
-            monsterSheet.appendChild(secondaryStatsBlock)
-
-            if (data.special_abilities){
-                abilitiesBlock = createAbilitiesBlock(data.special_abilities)
-                monsterSheet.appendChild(abilitiesBlock)
-            }
-
-            container.appendChild(monsterSheet)
-
-            // Add event listeners to trigger the animations for the accoridans
-            btn.addEventListener("click", (e) => {
-                let monsterSheet = e.target.nextElementSibling
-                console.log(monsterSheet)
-        
-                if (monsterSheet.style.maxHeight){
-                    monsterSheet.style.maxHeight = null
-                } else{
-                    monsterSheet.style.maxHeight = `${monsterSheet.scrollHeight}px`
+fetch(`${url}`)
+    .then(res => res.json())
+    .then(data => {
+        for(let i = 0; i < 10; i++){
+            fetch(`${url}/${data.results[i].index}`)
+            .then(res => res.json())
+            .then(data => {
+    
+                // Create an accordion button for all of the creatures in the array that
+                // was passed into the loop
+                let btn = document.createElement("button")
+                btn.innerHTML = `<p>${data.name}</p> <p>CR ${data.challenge_rating}</p>`
+                btn.classList.add("accordion")
+                
+                container.appendChild(btn)
+    
+    
+                let monsterSheet = document.createElement("div")
+                monsterSheet.classList.add("monster-sheet")
+    
+                statBlock = createStatBlock(data)
+                vitalsBlock = createVitalsBlock(data)
+                secondaryStatsBlock = createSecondaryStatsBlock(data)
+    
+    
+                // Add all of the created divs to the monster's character sheet
+                monsterSheet.appendChild(vitalsBlock)
+                monsterSheet.appendChild(statBlock)
+                monsterSheet.appendChild(secondaryStatsBlock)
+    
+                if (data.special_abilities){
+                    abilitiesBlock = createAbilitiesBlock(data.special_abilities)
+                    monsterSheet.appendChild(abilitiesBlock)
                 }
+    
+                container.appendChild(monsterSheet)
+    
+                // Add event listeners to trigger the animations for the accoridans
+                btn.addEventListener("click", (e) => {
+                    let monsterSheet = e.target.nextElementSibling
+                    console.log(monsterSheet)
+            
+                    if (monsterSheet.style.maxHeight){
+                        monsterSheet.style.maxHeight = null
+                    } else{
+                        monsterSheet.style.maxHeight = `${monsterSheet.scrollHeight}px`
+                    }
+                })
             })
-        })
-}
+        }
+    })
+
+
+// for (let i = 0; i < creatures.length; i++){
+//     fetch(`${url}/${creatures[i]}`)
+        
+// }
 
 
 /* -------------------------------------------------- 
@@ -281,7 +261,7 @@ function createStatBlock(data){
     let statsStrArray = ["STR", "DEX", "CON", "INT", "WIS", "CHA"]
 
     let statsBlock = document.createElement("div")
-    statsBlock.classList.add("stat-block")
+    statsBlock.classList.add("stat-block", "maroon")
 
     statsBlock.innerHTML =  prepareStatRow(statsStrArray, true) + prepareStatRow(statsArray) + prepareStatRow(statsModArray)
 
@@ -298,6 +278,7 @@ function createVitalsBlock(data){
     let hp = pTagWrap(`<strong> Hit Points </strong> ${data.hit_points} (${data.hit_dice}+${abilityModifier(con)})`)
     
     vitalsBlock.innerHTML = ac + hp + prepareSpeed(data.speed)
+    vitalsBlock.classList.add("maroon")
 
     return vitalsBlock
 }
@@ -315,6 +296,7 @@ function createSecondaryStatsBlock(data){
     secondaryStatsBlock.innerHTML += prepareSenses(data.senses)
 
     secondaryStatsBlock.innerHTML += pTagWrap(`<strong> Languages </strong> ${data.languages}`)
+    secondaryStatsBlock.classList.add("maroon")
 
     return secondaryStatsBlock
 }
